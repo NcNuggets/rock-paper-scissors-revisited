@@ -1,33 +1,53 @@
-function playGame() {
-  // need to create a 5-round game
-  for (i = 0; i < TOTALROUNDS; i++) {
-    currentRound++;
-    getPlayerInput();
-    computerCalculation();
-    evaluateRoundWinner(playerSelection, computerSelection);
-    printScore();
-  }
-
-  console.log(evaluateMatchWinner(playerScore,computerScore));
-}
-
-const TOTALROUNDS = 5;
-let playerSelection;
-let computerSelectionNum;
-let computerSelection;
-let roundWinner;
+// variables
+let playerSelection = '';
+let computerSelectionNum = 0;
+let computerSelection = '';
+let roundWinner = '';
 let playerScore = 0;
 let computerScore = 0;
+let currentScore = '';
 let currentRound = 0;
-let currentScore;
 
-// need to get and store input from the player
-function getPlayerInput() {
-  playerSelection = prompt("A challenger approaches.  Select your tool! (Rock, Paper, or Scissors?)");
+// need to get and store input from the player's buttons -- I learned here to make sure your <script> is in the dang <body> tag!
+const buttons = document.querySelectorAll('button');
+buttons.forEach(button => {
+  button.addEventListener('click', (e) => {
+    playerSelection = button.innerHTML.toUpperCase();
+    playerChoice.textContent = "You chose " + playerSelection + "!";
+    playRound();
+  });
+});
 
-  playerSelection = playerSelection.toUpperCase();
+// need to create dynamic divs that display our results so we don't need to monitor the console for logs
+const content = document.querySelector('.content');
 
-  console.log("You chose " + playerSelection + "!");
+const scoreBoard = document.createElement('h4');
+scoreBoard.classList.add('score');
+scoreBoard.textContent = "Player: " + playerScore + " | " + "Challenger: " + computerScore;
+
+const roundResults = document.createElement('h4');
+roundResults.classList.add('results');
+roundResults.textContent = '';
+
+const playerChoice = document.createElement('h3');
+playerChoice.classList.add('player-choice');
+playerChoice.textContent = "Select your weapon!";
+
+const computerChoice = document.createElement('h3');
+computerChoice.classList.add('computer-choice');
+computerChoice.textContent = "A challenger approaches!";
+
+content.appendChild(playerChoice);
+content.appendChild(computerChoice);
+content.appendChild(roundResults);
+content.appendChild(scoreBoard);
+
+// need to play a single round
+function playRound() {
+  currentRound++;
+  computerCalculation();
+  evaluateRoundWinner(playerSelection, computerSelection);
+  printScore(currentRound);
 }
 
 // need to randomly choose rock, paper, or scissors for the computer
@@ -42,13 +62,13 @@ function computerCalculation() {
     computerSelection = "SCISSORS";
   }
 
-  console.log("Challenger chose " + computerSelection + "!");
+  computerChoice.textContent = "Challenger chose " + computerSelection + "!";
 }
 
 // need to evaluate who wins the round
-function evaluateRoundWinner(playerSelection, computerSelection) {
-  let player = playerSelection;
-  let computer = computerSelection;
+function evaluateRoundWinner(playerPick, computerPick) {
+  let player = playerPick;
+  let computer = computerPick;
 
   if (player === "ROCK" && computer === "ROCK") {
     roundWinner = "No one! It was a Tie!";
@@ -78,26 +98,48 @@ function evaluateRoundWinner(playerSelection, computerSelection) {
 }
 
 // need to output the score to the console
-function printScore() {
+function printScore(round) {
+  let roundCounter = round;
+
   currentScore = "Player: " + playerScore + " | " + "Challenger: " + computerScore;
 
-  console.log("And the winner of Round " + currentRound + " was... " + roundWinner);
-  console.log(currentScore);
+  roundResults.textContent = "And the winner of Round " + roundCounter + " was... " + roundWinner;
+  scoreBoard.textContent = currentScore;
+
+  evaluateMatchWinner(playerScore, computerScore);
 }
 
-// need to evaluate who wins the game
+// need to evaluate who wins the match
 function evaluateMatchWinner(playerScore, computerScore) {
   let player = playerScore;
   let computer = computerScore;
   let matchWinnerMessage = "";
 
-  if (player > computer) {
-    matchWinnerMessage = "You won the match!";
-  } else if (computer > player) {
-    matchWinnerMessage = "The Challenger won the match!";
-  } else {
-    matchWinnerMessage = "Nobody won! Go again!";
+  if (player >= 5) {
+    matchWinnerMessage = "You were first to 5 points, you are victorious!";
+    reset(matchWinnerMessage);
+  } else if (computer >= 5) {
+    matchWinnerMessage = "The Challenger was first to 5 points, you have been defeated!";
+    reset(matchWinnerMessage);
   }
-
-  return matchWinnerMessage;
 }
+
+// need to create a reset function
+function reset(winner) {
+  playerSelection = '';
+  computerSelectionNum = 0;
+  computerSelection = '';
+  roundWinner = '';
+  playerScore = 0;
+  computerScore = 0;
+  currentScore = '';
+  currentRound = 0;
+  matchWinnerMessage = "";
+
+  playerChoice.textContent = "Select your weapon!";
+  computerChoice.textContent = "A challenger approaches!";
+
+  roundResults.textContent = winner;
+}
+
+// END CODE
